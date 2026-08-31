@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Homework — Dashboard | Kidora Learn ERP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700&display=swap');
+
+  :root{
+    --bg:#F5F8FC;
+    --grid:#D3E1F0;
+    --blue:#0B3D91;
+    --blue-mid:#2E6FCF;
+    --orange:#FF6B35;
+    --steel:#7488A0;
+    --ink:#0E1E33;
+    --card:#FFFFFF;
+    --green:#1D8A4E;
+    --red:#C4402A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:#FFFFFF;color:var(--ink);
+    font-family:'Archivo',sans-serif;padding:28px 32px 60px;
+  }
+
+  .topbar{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    border:2px solid var(--blue);padding:16px 20px;margin-bottom:20px;background:var(--card);
+    position:relative;
+  }
+  .topbar::before,.topbar::after{content:"";position:absolute;width:10px;height:10px;border:2px solid var(--orange);top:-2px;left:-2px;border-right:none;border-bottom:none;}
+  .topbar::after{left:auto;right:-2px;top:auto;bottom:-2px;border:2px solid var(--orange);border-left:none;border-top:none;}
+  .topbar h1{font-family:'Archivo Expanded';font-size:20px;text-transform:uppercase;letter-spacing:1px;margin:0;color:var(--blue);}
+  .topbar .sub{font-size:11px;color:var(--steel);margin-top:4px;letter-spacing:0.5px;}
+  .topbar .spec{text-align:right;font-size:11px;color:var(--steel);}
+  .topbar .spec b{color:var(--ink);display:block;font-size:12px;}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .date-range{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--grid);padding:10px 14px;font-size:11px;font-weight:600;}
+  .date-range .k{color:var(--steel);text-transform:uppercase;letter-spacing:1px;font-size:9px;}
+  .date-range input[type="date"]{border:none;background:transparent;font:600 11px 'Archivo',sans-serif;color:var(--ink);padding:0;cursor:pointer;}
+  .date-range span.sep{color:var(--steel);}
+  .download-btn{background:var(--blue);color:#fff;border:none;padding:11px 16px;font:600 11px 'Archivo',sans-serif;letter-spacing:.4px;cursor:pointer;}
+
+  .dl-wrap{position:relative;}
+  .dl-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:230px;background:var(--card);border:2px solid var(--blue);z-index:20;box-shadow:0 6px 14px rgba(11,61,145,0.18);}
+  .dl-wrap.open .dl-menu{display:block;}
+  .dl-menu a{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:11px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--grid);}
+  .dl-menu a:last-child{border-bottom:none;}
+  .dl-menu a:hover{background:var(--bg);color:var(--blue);}
+  .dl-caret{margin-left:6px;font-size:9px;transition:transform .15s;}
+  .dl-wrap.open .dl-caret{transform:rotate(180deg);}
+
+  .filters{display:flex;border:1px solid var(--grid);margin-bottom:20px;background:var(--card);flex-wrap:wrap;}
+  .filters div{flex:1;min-width:150px;padding:10px 16px;border-right:1px solid var(--grid);font-size:11px;position:relative;}
+  .filters div:last-child{border-right:none;}
+  .filters .k{color:var(--steel);text-transform:uppercase;letter-spacing:1px;font-size:9px;display:block;margin-bottom:3px;}
+  .filters select{width:100%;border:none;background:transparent;padding:0;margin:0;font:600 12px 'Archivo',sans-serif;color:var(--ink);appearance:none;-webkit-appearance:none;cursor:pointer;}
+  .filters div::after{content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-8px);font-size:9px;color:var(--steel);pointer-events:none;}
+
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--grid);border:1px solid var(--grid);margin-bottom:20px;}
+  .kpi{background:var(--card);padding:16px;}
+  .kpi .idx{font-size:9px;color:var(--orange);font-weight:700;letter-spacing:1px;}
+  .kpi .lbl{font-size:10px;color:var(--steel);text-transform:uppercase;letter-spacing:0.5px;margin:4px 0;}
+  .kpi .num{font-family:'Archivo Expanded';font-size:23px;font-weight:700;color:var(--blue);}
+  .kpi .delta{font-size:10px;font-weight:600;margin-top:4px;}
+  .up{color:var(--green);}.down{color:var(--red);}
+
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:1px;background:var(--grid);border:1px solid var(--grid);margin-bottom:20px;}
+  .panel{background:var(--card);padding:20px;}
+  .panel h2{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid var(--orange);display:inline-block;}
+
+  .funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+  .funnel-name{width:105px;font-size:11px;color:var(--steel);font-weight:600;}
+  .funnel-track{flex:1;height:14px;background:var(--bg);border:1px solid var(--grid);position:relative;}
+  .funnel-fill{height:100%;background:var(--blue-mid);}
+  .funnel-val{width:110px;text-align:right;font-size:11px;font-weight:700;color:var(--blue);}
+
+  svg{display:block;}
+  .donut-wrap{display:flex;align-items:center;gap:16px;}
+  .legend{font-size:11px;flex:1;}
+  .li{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--grid);color:var(--steel);}
+  .li b{color:var(--ink);}
+  .dot{width:8px;height:8px;display:inline-block;margin-right:7px;}
+
+  .chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .chart-head h2{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin:0;padding-bottom:8px;border-bottom:2px solid var(--orange);display:inline-block;}
+  .class-select{border:1px solid var(--grid);padding:8px 12px;background:var(--bg);font:600 10px 'Archivo',sans-serif;color:var(--ink);}
+
+  .classwise{margin-bottom:20px;border:1px solid var(--grid);background:var(--card);padding:20px;}
+  .bar-chart{height:205px;display:flex;align-items:flex-end;justify-content:space-around;border-bottom:1px solid var(--grid);border-left:1px solid var(--grid);padding:20px 4px 0;}
+  .bar-group{height:100%;display:flex;align-items:flex-end;gap:3px;position:relative;padding-top:22px;}
+  .bar{width:13px;min-height:10px;position:relative;}
+  .bar.assign{background:var(--blue-mid);}.bar.collect{background:var(--green);}.bar.missed{background:var(--red);}
+  .bar span{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;color:var(--ink);}
+  .class-labels{display:flex;justify-content:space-around;padding:8px 4px 0;font-size:9px;color:var(--steel);font-weight:600;}
+  .chart-legend{display:flex;gap:18px;font-size:10px;color:var(--steel);}
+  .legend-square{width:8px;height:8px;display:inline-block;margin-right:6px;}
+
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;color:var(--steel);text-transform:uppercase;font-size:9px;letter-spacing:1px;padding:7px 8px;border-bottom:2px solid var(--blue);font-weight:600;}
+  td{padding:9px 8px;border-bottom:1px solid var(--grid);}
+  .status{font-size:10px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:0.5px;}
+  .status.paid{background:#E4F5EA;color:var(--green);}
+  .status.partial{background:#FFF0E4;color:var(--orange);}
+  .status.overdue{background:#FBE4E1;color:var(--red);}
+  .action-btn{border:1px solid var(--blue-mid);background:#fff;color:var(--blue);padding:5px 9px;font:700 9px 'Archivo',sans-serif;cursor:pointer;}
+
+  .tracker{border:1px solid var(--grid);background:var(--card);padding:20px;}
+  .tracker-controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .tracker-controls select, .tracker-controls input{
+    border:1px solid var(--grid);padding:9px 12px;background:var(--bg);
+    font:600 11px 'Archivo',sans-serif;color:var(--ink);
+  }
+  .tracker-controls input{flex:1;min-width:180px;}
+  .streak-cell{display:flex;align-items:center;gap:8px;}
+  .streak-track{width:70px;height:6px;background:var(--bg);border:1px solid var(--grid);}
+  .streak-fill{height:100%;background:var(--green);}
+  .streak-fill.warn{background:var(--orange);}
+  .streak-fill.bad{background:var(--red);}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <h1>Homework — Dashboard v1.0</h1>
+      <div class="sub">Bright Future International School · Kidora Learn ERP</div>
+    </div>
+    <div class="spec">
+      DRAWING NO. HW-2026-01<br>
+      <b>01 AUG 2026 – 29 AUG 2026</b>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="date-range">
+      <span class="k">Date Range</span>
+      <input type="date" value="2026-08-01" id="dateFrom">
+      <span class="sep">—</span>
+      <input type="date" value="2026-08-29" id="dateTo">
+    </div>
+    <div class="dl-wrap" id="dlWrap">
+      <button class="download-btn" onclick="document.getElementById('dlWrap').classList.toggle('open')">
+        ↓ DOWNLOAD HOMEWORK REPORT <span class="dl-caret">▾</span>
+      </button>
+      <div class="dl-menu">
+        <a href="#"><span>Submission Report</span></a>
+        <a href="#"><span>Defaulters Report</span></a>
+        <a href="#"><span>Class-wise Report</span></a>
+        <a href="#"><span>Subject-wise Report</span></a>
+        <a href="#"><span>Full Student Tracker (CSV)</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div>
+      <span class="k">Academic Year</span>
+      <select><option>2025 – 2026</option><option>2024 – 2025</option><option>2023 – 2024</option></select>
+    </div>
+    <div>
+      <span class="k">Branch</span>
+      <select><option>All Branches</option><option>North Campus</option><option>South Campus</option><option>City Centre</option></select>
+    </div>
+    <div>
+      <span class="k">Class</span>
+      <select>
+        <option>All Classes</option><option>Nursery</option><option>LKG</option><option>UKG</option>
+        <option>Class 1</option><option>Class 2</option><option>Class 3</option><option>Class 4</option>
+        <option>Class 5</option><option>Class 6</option><option>Class 7</option><option>Class 8</option>
+        <option>Class 9</option><option>Class 10</option><option>Class 11</option><option>Class 12</option>
+      </select>
+    </div>
+    <div>
+      <span class="k">Section</span>
+      <select><option>All Sections</option><option>Section A</option><option>Section B</option><option>Section C</option></select>
+    </div>
+    <div>
+      <span class="k">Submission Status</span>
+      <select><option>All Status</option><option>Submitted</option><option>Pending</option><option>Overdue</option></select>
+    </div>
+    <div>
+      <span class="k">Period</span>
+      <select><option>Aug 2026</option><option>Jul 2026</option><option>Full Year 2025-26</option></select>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="idx">01</div><div class="lbl">Homework Assigned</div><div class="num">128</div><div class="delta up">▲ 8.2%</div></div>
+    <div class="kpi"><div class="idx">02</div><div class="lbl">Submitted On Time</div><div class="num">82%</div><div class="delta up">▲ 4.1%</div></div>
+    <div class="kpi"><div class="idx">03</div><div class="lbl">Pending Review</div><div class="num">17</div><div class="delta down">▼ 2.4%</div></div>
+    <div class="kpi"><div class="idx">04</div><div class="lbl">Overdue Submissions</div><div class="num">23</div><div class="delta down">▼ 6.7%</div></div>
+    <div class="kpi"><div class="idx">05</div><div class="lbl">Completion Rate</div><div class="num">91.4%</div><div class="delta up">▲ 3.0%</div></div>
+    <div class="kpi"><div class="idx">06</div><div class="lbl">Defaulters</div><div class="num">9</div><div class="delta down">▼ 1.1%</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="chart-head" style="margin-bottom:12px;">
+        <h2 id="trendTitle" style="margin:0;padding-bottom:8px;">Submission Trend — Aug 2026</h2>
+      </div>
+      <svg viewBox="0 0 380 190" width="100%" height="190" id="trendSvg">
+        <defs>
+          <marker id="trendArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 L3,5 Z" fill="var(--blue)"/>
+          </marker>
+        </defs>
+        <line x1="20" y1="20" x2="20" y2="160" stroke="var(--grid)"/>
+        <line x1="20" y1="160" x2="360" y2="160" stroke="var(--grid)"/>
+        <polyline id="trendCollected" points="" fill="none" stroke="var(--blue)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#trendArrow)"/>
+        <polyline id="trendOutstanding" points="" fill="none" stroke="var(--orange)" stroke-width="2"/>
+        <g font-size="9" fill="var(--steel)">
+          <text id="trendLabelStart" x="12" y="175">1</text>
+          <text id="trendLabelEnd" x="325" y="175">31</text>
+        </g>
+      </svg>
+      <div style="display:flex;gap:14px;font-size:10px;margin-top:6px;">
+        <span><span class="dot" style="background:var(--blue)"></span>Cumulative Submitted</span>
+        <span><span class="dot" style="background:var(--orange)"></span>Missed / Overdue</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="chart-head" style="margin-bottom:12px;">
+        <h2 style="margin:0;padding-bottom:8px;">Submission Status Split</h2>
+        <button class="action-btn">VIEW DETAILS</button>
+      </div>
+      <div class="donut-wrap" style="position:relative;">
+        <div style="position:relative;width:110px;height:110px;flex:none;">
+          <svg width="110" height="110" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--bg)" stroke-width="6"></circle>
+            <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--green)" stroke-width="6" stroke-dasharray="76 24" stroke-dashoffset="25"></circle>
+            <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--orange)" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="-51"></circle>
+            <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--red)" stroke-width="6" stroke-dasharray="9 91" stroke-dashoffset="-66"></circle>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+            <div style="font-family:'Archivo Expanded';font-size:17px;font-weight:700;color:var(--blue);line-height:1;">128</div>
+            <div style="font-size:8px;color:var(--steel);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Total</div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="li"><span><span class="dot" style="background:var(--green)"></span>On Time</span><b>76%</b></div>
+          <div class="li"><span><span class="dot" style="background:var(--orange)"></span>Late</span><b>15%</b></div>
+          <div class="li"><span><span class="dot" style="background:var(--red)"></span>Missed</span><b>9%</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="classwise">
+    <div class="chart-head">
+      <div>
+        <h2>Section-wise Comparison — Assigned vs Submitted vs Missed</h2>
+        <div class="chart-legend">
+          <span><span class="legend-square" style="background:var(--blue-mid)"></span>Assigned</span>
+          <span><span class="legend-square" style="background:var(--green)"></span>Submitted</span>
+          <span><span class="legend-square" style="background:var(--red)"></span>Missed</span>
+        </div>
+      </div>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-group"><div class="bar assign" style="height:96%"><span>48</span></div><div class="bar collect" style="height:76%"><span>38</span></div><div class="bar missed" style="height:20%"><span>10</span></div></div>
+      <div class="bar-group"><div class="bar assign" style="height:88%"><span>44</span></div><div class="bar collect" style="height:56%"><span>28</span></div><div class="bar missed" style="height:32%"><span>16</span></div></div>
+      <div class="bar-group"><div class="bar assign" style="height:92%"><span>46</span></div><div class="bar collect" style="height:70%"><span>35</span></div><div class="bar missed" style="height:22%"><span>11</span></div></div>
+    </div>
+    <div class="class-labels">
+      <span>Section A</span><span>Section B</span><span>Section C</span>
+    </div>
+  </div>
+
+  <div class="tracker" style="margin-bottom:20px;">
+    <div class="chart-head">
+      <h2>Track Students — Class Wise (Nursery to Class 12)</h2>
+      <button class="action-btn" style="padding:8px 14px;" onclick="document.getElementById('dlWrap').classList.toggle('open')">↓ DOWNLOAD LIST</button>
+    </div>
+    <div class="tracker-controls">
+      <select class="class-select" id="classPick" onchange="filterTracker()">
+        <option value="all">All Classes</option>
+        <option value="Nursery">Nursery</option>
+        <option value="LKG">LKG</option>
+        <option value="UKG">UKG</option>
+        <option value="Class 1">Class 1</option>
+        <option value="Class 2">Class 2</option>
+        <option value="Class 3">Class 3</option>
+        <option value="Class 4">Class 4</option>
+        <option value="Class 5">Class 5</option>
+        <option value="Class 6">Class 6</option>
+        <option value="Class 7" selected>Class 7</option>
+        <option value="Class 8">Class 8</option>
+        <option value="Class 9">Class 9</option>
+        <option value="Class 10">Class 10</option>
+        <option value="Class 11">Class 11</option>
+        <option value="Class 12">Class 12</option>
+      </select>
+      <select class="class-select" id="sectionPick" onchange="filterTracker()">
+        <option value="all">All Sections</option>
+        <option value="A">Section A</option>
+        <option value="B">Section B</option>
+        <option value="C">Section C</option>
+      </select>
+      <input type="text" id="searchName" placeholder="Search student name..." oninput="filterTracker()">
+    </div>
+    <div style="display:flex;gap:16px;font-size:10px;color:var(--steel);margin-bottom:14px;">
+      <span><span class="status paid" style="padding:2px 8px;">On Time</span> submitted every assignment on schedule</span>
+      <span><span class="status partial" style="padding:2px 8px;">Partial</span> some assignments missed or late</span>
+      <span><span class="status overdue" style="padding:2px 8px;">At Risk</span> repeatedly missing submissions</span>
+    </div>
+    <table id="trackerTable">
+      <tr><th>Roll</th><th>Student</th><th>Class</th><th>Section</th><th>Submitted</th><th>Missed</th><th>Streak</th><th>Status</th></tr>
+      <tr data-class="Class 7" data-section="A"><td>01</td><td>Kabir Rathi</td><td>7</td><td>A</td><td>28/28</td><td>0</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:95%"></div></div>15</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+      <tr data-class="Class 7" data-section="A"><td>02</td><td>Naina Malhotra</td><td>7</td><td>A</td><td>26/28</td><td>2</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:70%"></div></div>11</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+      <tr data-class="Class 7" data-section="A"><td>03</td><td>Dev Chauhan</td><td>7</td><td>A</td><td>19/28</td><td>9</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill bad" style="width:15%"></div></div>1</div></td>
+        <td><span class="status overdue">At Risk</span></td></tr>
+      <tr data-class="Class 8" data-section="A"><td>01</td><td>Vihaan Joshi</td><td>8</td><td>A</td><td>25/28</td><td>3</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:80%"></div></div>12</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+      <tr data-class="Class 8" data-section="A"><td>02</td><td>Tara Sethi</td><td>8</td><td>A</td><td>23/28</td><td>5</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill warn" style="width:55%"></div></div>9</div></td>
+        <td><span class="status partial">Partial</span></td></tr>
+      <tr data-class="Class 8" data-section="B"><td>01</td><td>Sanya Iyer</td><td>8</td><td>B</td><td>28/28</td><td>0</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:100%"></div></div>18</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+      <tr data-class="Class 8" data-section="B"><td>02</td><td>Mohit Verma</td><td>8</td><td>B</td><td>18/28</td><td>10</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill bad" style="width:10%"></div></div>0</div></td>
+        <td><span class="status overdue">At Risk</span></td></tr>
+      <tr data-class="Class 9" data-section="C"><td>01</td><td>Ananya Desai</td><td>9</td><td>C</td><td>27/28</td><td>1</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:88%"></div></div>14</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+      <tr data-class="Class 9" data-section="C"><td>02</td><td>Priya Nair</td><td>9</td><td>C</td><td>20/28</td><td>8</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill warn" style="width:40%"></div></div>4</div></td>
+        <td><span class="status partial">Partial</span></td></tr>
+      <tr data-class="Nursery" data-section="A"><td>01</td><td>Ira Malhotra</td><td>Nursery</td><td>A</td><td>15/16</td><td>1</td>
+        <td><div class="streak-cell"><div class="streak-track"><div class="streak-fill" style="width:90%"></div></div>10</div></td>
+        <td><span class="status paid">On Time</span></td></tr>
+    </table>
+  </div>
+
+  <div style="border:1px solid var(--grid);background:var(--card);padding:20px;margin-bottom:20px;">
+    <div class="chart-head">
+      <h2 style="margin:0;">Top Defaulters vs Top Performers</h2>
+      <select class="class-select">
+        <option>All Classes</option><option>Class 7</option><option>Class 8</option><option>Class 9</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:18px;">
+      <div style="border-right:1px solid var(--grid);padding-right:32px;">
+        <h3 style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin:0 0 4px;padding-bottom:8px;border-bottom:2px solid var(--orange);display:inline-block;">Top Defaulters</h3>
+        <div style="font-size:11px;color:var(--steel);margin:10px 0 14px;">Consecutive missed submissions</div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#FBE4E1;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">MV</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Mohit Verma</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 8 · Section B</div></div>
+          </div>
+          <span style="background:#FBE4E1;color:var(--red);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">10 missed</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#FBE4E1;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">DC</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Dev Chauhan</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 7 · Section A</div></div>
+          </div>
+          <span style="background:#FBE4E1;color:var(--red);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">9 missed</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#FBE4E1;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">PN</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Priya Nair</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 9 · Section C</div></div>
+          </div>
+          <span style="background:#FBE4E1;color:var(--red);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">8 missed</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#FBE4E1;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">TS</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Tara Sethi</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 8 · Section A</div></div>
+          </div>
+          <span style="background:#FBE4E1;color:var(--red);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">5 missed</span>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin:0 0 4px;padding-bottom:8px;border-bottom:2px solid var(--orange);display:inline-block;">Top Performers</h3>
+        <div style="font-size:11px;color:var(--steel);margin:10px 0 14px;">No missed or late submissions</div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#E4F5EA;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">SI</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Sanya Iyer</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 8 · Section B</div></div>
+          </div>
+          <span style="background:#E4F5EA;color:var(--green);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">18 streak</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#E4F5EA;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">KR</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Kabir Rathi</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 7 · Section A</div></div>
+          </div>
+          <span style="background:#E4F5EA;color:var(--green);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">15 streak</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--grid);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#E4F5EA;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">AD</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Ananya Desai</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 9 · Section C</div></div>
+          </div>
+          <span style="background:#E4F5EA;color:var(--green);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">14 streak</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#E4F5EA;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;">VJ</div>
+            <div><div style="font-size:12px;font-weight:700;color:var(--ink);">Vihaan Joshi</div><div style="font-size:10px;color:var(--steel);margin-top:2px;">Class 8 · Section A</div></div>
+          </div>
+          <span style="background:#E4F5EA;color:var(--green);font-size:11px;font-weight:700;padding:4px 11px;border-radius:12px;white-space:nowrap;">12 streak</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border:1px solid var(--grid);background:var(--card);padding:20px;">
+    <div class="chart-head">
+      <h2>Recent Homework</h2>
+      <button class="action-btn" style="padding:8px 14px;">VIEW ALL ASSIGNMENTS</button>
+    </div>
+    <table>
+      <tr><th>No.</th><th>Subject</th><th>Class</th><th>Due Date</th><th>Progress</th><th>Status</th><th>Action</th></tr>
+      <tr><td>001</td><td>Mathematics — Ch. 6 exercises</td><td>8</td><td>01 Sep</td><td>45%</td><td><span class="status partial">Active</span></td><td><button class="action-btn">VIEW</button></td></tr>
+      <tr><td>002</td><td>Science — Lab report</td><td>7</td><td>30 Aug</td><td>70%</td><td><span class="status partial">Due Soon</span></td><td><button class="action-btn">VIEW</button></td></tr>
+      <tr><td>003</td><td>English — Essay draft</td><td>9</td><td>27 Aug</td><td>88%</td><td><span class="status overdue">Overdue</span></td><td><button class="action-btn">VIEW</button></td></tr>
+      <tr><td>004</td><td>Social Studies — Map work</td><td>6</td><td>03 Sep</td><td>12%</td><td><span class="status paid">Active</span></td><td><button class="action-btn">VIEW</button></td></tr>
+    </table>
+  </div>
+
+<script>
+  document.addEventListener('click', function(e){
+    var wrap = document.getElementById('dlWrap');
+    if(wrap && !wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var monthShort  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var monthDays   = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+  var cumulativeSubmitted = [10, 22, 34, 47, 60, 73, 86, 98, 108, 118, 128, 138];
+  var missedOverdue       = [6, 7.5, 6.8, 7, 6.5, 6, 5.6, 5.2, 5, 4.8, 4.5, 4.2];
+
+  var chartTop = 20, chartBottom = 160, xLeft = 20, xRight = 345;
+  var valMax = 150;
+
+  function valToY(v){
+    return chartBottom - (v / valMax) * (chartBottom - chartTop);
+  }
+
+  function buildPoints(startVal, endVal){
+    var xs = [xLeft, xLeft + (xRight-xLeft)*0.25, xLeft + (xRight-xLeft)*0.5, xLeft + (xRight-xLeft)*0.75, xRight];
+    var ease = [0, 0.22, 0.5, 0.78, 1];
+    return xs.map(function(x, i){
+      var v = startVal + (endVal - startVal) * ease[i];
+      return Math.round(x) + ',' + Math.round(valToY(v));
+    }).join(' ');
+  }
+
+  function renderTrend(monthIndexStr){
+    var m = parseInt(monthIndexStr, 10);
+    var subStart = m === 0 ? 0 : cumulativeSubmitted[m-1];
+    var subEnd   = cumulativeSubmitted[m];
+    var missStart = m === 0 ? missedOverdue[0] : missedOverdue[m-1];
+    var missEnd   = missedOverdue[m];
+
+    document.getElementById('trendCollected').setAttribute('points', buildPoints(subStart, subEnd));
+    document.getElementById('trendOutstanding').setAttribute('points', buildPoints(missStart, missEnd));
+    document.getElementById('trendTitle').textContent = 'Submission Trend — ' + monthShort[m] + ' 2026';
+    document.getElementById('trendLabelStart').textContent = '1 ' + monthShort[m].toUpperCase();
+    document.getElementById('trendLabelEnd').textContent = monthDays[m] + ' ' + monthShort[m].toUpperCase();
+  }
+
+  renderTrend('7');
+
+  function filterTracker(){
+    var cls = document.getElementById('classPick').value;
+    var sec = document.getElementById('sectionPick').value;
+    var q = document.getElementById('searchName').value.trim().toLowerCase();
+    var rows = document.querySelectorAll('#trackerTable tr[data-class]');
+    rows.forEach(function(row){
+      var matchClass = (cls === 'all') || (row.getAttribute('data-class') === cls);
+      var matchSection = (sec === 'all') || (row.getAttribute('data-section') === sec);
+      var name = row.children[1].textContent.toLowerCase();
+      var matchSearch = q === '' || name.indexOf(q) !== -1;
+      row.style.display = (matchClass && matchSection && matchSearch) ? '' : 'none';
+    });
+  }
+  filterTracker();
+</script>
+
+</body>
+</html>
